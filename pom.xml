@@ -190,7 +190,8 @@
                             <goal>wget</goal>
                         </goals>
                         <configuration>
-                            <uri>https://raw.githubusercontent.com/onecx/onecx-document-svc/refs/heads/main/src/main/openapi/onecx-document-internal.yaml</uri>
+                            <!-- TEMPORARY: Using feature branch for testing, change back to main after merge -->
+                            <uri>https://raw.githubusercontent.com/maciejkryger/onecx-document-svc/refs/heads/feat/cleaning-up-bad-practices/src/main/openapi/onecx-document-internal.yaml</uri>
                             <outputDirectory>target/tmp/openapi</outputDirectory>
                             <outputFileName>onecx-document-svc.yaml</outputFileName>
                             <skipCache>true</skipCache>

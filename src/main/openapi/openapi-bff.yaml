@@ -371,7 +371,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Channel'
   /document/delete-bulk-documents:
-    delete:
+    post:
       x-onecx:
         permissions:
           document:

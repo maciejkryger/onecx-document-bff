@@ -1013,11 +1013,11 @@ class DocumentControllerTest extends AbstractTest {
     // ==================== deleteBulkDocuments ====================
 
     @Test
-    @DisplayName("DELETE /delete-bulk-documents - should return 204 when bulk delete succeeds")
+    @DisplayName("POST /delete-bulk-documents - should return 204 when bulk delete succeeds")
     void deleteBulkDocuments_shouldReturnNoContent_whenServiceRespondsNoContent() {
         mockServerClient
                 .when(request()
-                        .withMethod("DELETE")
+                        .withMethod("POST")
                         .withPath("/internal/document/delete-bulk-documents"))
                 .withId(SEC_SVC_MOCK_ID)
                 .respond(response()
@@ -1029,7 +1029,7 @@ class DocumentControllerTest extends AbstractTest {
                 .header(APM_HEADER_PARAM, ADMIN)
                 .contentType(APPLICATION_JSON)
                 .body(List.of(DOCUMENT_ID))
-                .delete("/delete-bulk-documents")
+                .post("/delete-bulk-documents")
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
     }

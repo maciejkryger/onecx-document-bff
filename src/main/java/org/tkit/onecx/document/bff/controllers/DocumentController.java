@@ -84,7 +84,7 @@ public class DocumentController implements DocumentControllerApiService {
     @Override
     public Response getDocumentByCriteria(DocumentSearchCriteriaDTO criteriaDTO) {
         var internalCriteria = mapper.mapToInternalCriteria(criteriaDTO);
-        try (Response response = documentControllerApi.getDocumentByCriteria(internalCriteria)) {
+        try (Response response = documentControllerApi.searchDocumentsByCriteria(internalCriteria)) {
             return Response.status(response.getStatus())
                     .entity(mapper.map(response.readEntity(DocumentPageResultDTO.class)))
                     .build();
