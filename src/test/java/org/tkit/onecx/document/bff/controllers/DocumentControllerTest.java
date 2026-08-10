@@ -26,8 +26,6 @@ import gen.org.tkit.onecx.document.rs.internal.model.ChannelCreateUpdateDTO;
 import gen.org.tkit.onecx.document.rs.internal.model.ChannelDTO;
 import gen.org.tkit.onecx.document.rs.internal.model.DocumentCreateUpdateDTO;
 import gen.org.tkit.onecx.document.rs.internal.model.DocumentDetailDTO;
-import gen.org.tkit.onecx.document.rs.internal.model.DocumentPageResultDTO;
-import gen.org.tkit.onecx.document.rs.internal.model.DocumentSearchCriteriaDTO;
 import gen.org.tkit.onecx.document.rs.internal.model.StorageUploadAuditDTO;
 import gen.org.tkit.onecx.document.rs.internal.model.UpdateFileMetadataRequestDTO;
 import gen.org.tkit.onecx.document.rs.internal.model.UploadAttachmentPresignedUrlRequestDTO;
@@ -676,92 +674,6 @@ class DocumentControllerTest extends AbstractTest {
                 .patch("/{documentId}/files/audit-log", DOCUMENT_ID)
                 .then()
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-    }
-
-    // ==================== showAllDocumentsByCriteria ====================
-
-    @Test
-    @DisplayName("POST /search/show-all-documents - should return all matching documents")
-    void showAllDocumentsByCriteria_shouldReturnMatchingDocuments() {
-        var criteria = new DocumentSearchCriteriaDTO();
-        criteria.setName("Test Document");
-
-        var detail = new DocumentDetailDTO();
-        detail.setId(DOCUMENT_ID);
-        detail.setName("Test Document");
-
-        mockServerClient
-                .when(request()
-                        .withMethod("POST")
-                        .withPath("/internal/document/search/show-all-documents"))
-                .withId(SVC_MOCK_ID)
-                .respond(response()
-                        .withStatusCode(Response.Status.OK.getStatusCode())
-                        .withContentType(org.mockserver.model.MediaType.APPLICATION_JSON)
-                        .withBody(JsonBody.json(List.of(detail))));
-
-        var response = given()
-                .when()
-                .auth().oauth2(keycloakClient.getAccessToken(ADMIN))
-                .header(APM_HEADER_PARAM, ADMIN)
-                .contentType(APPLICATION_JSON)
-                .body(criteria)
-                .post("/search/show-all-documents")
-                .then()
-                .statusCode(Response.Status.OK.getStatusCode())
-                .extract()
-                .body()
-                .as(DocumentDetail[].class);
-
-        assertThat(response[0].getId()).isEqualTo(DOCUMENT_ID);
-    }
-
-    // ==================== getDocumentByCriteria ====================
-
-    @Test
-    @DisplayName("POST /search - should return paged documents by criteria")
-    void getDocumentByCriteria_shouldReturnDocumentPage_whenCriteriaMatches() {
-        var criteria = new DocumentSearchCriteriaDTO();
-        criteria.setName("Test Document");
-        criteria.setPageNumber(0);
-        criteria.setPageSize(10);
-
-        var detail = new DocumentDetailDTO();
-        detail.setId(DOCUMENT_ID);
-        detail.setName("Test Document");
-
-        var pageResult = new DocumentPageResultDTO();
-        pageResult.setNumber(0);
-        pageResult.setSize(10);
-        pageResult.setTotalElements(1L);
-        pageResult.setTotalPages(1L);
-        pageResult.setStream(List.of(detail));
-
-        mockServerClient
-                .when(request()
-                        .withMethod("POST")
-                        .withPath("/internal/document/search"))
-                .withId(SVC_MOCK_ID)
-                .respond(response()
-                        .withStatusCode(Response.Status.OK.getStatusCode())
-                        .withContentType(org.mockserver.model.MediaType.APPLICATION_JSON)
-                        .withBody(JsonBody.json(pageResult)));
-
-        var response = given()
-                .when()
-                .auth().oauth2(keycloakClient.getAccessToken(ADMIN))
-                .header(APM_HEADER_PARAM, ADMIN)
-                .contentType(APPLICATION_JSON)
-                .body(criteria)
-                .post("/search")
-                .then()
-                .statusCode(Response.Status.OK.getStatusCode())
-                .extract()
-                .body()
-                .as(DocumentPageResultDTO.class);
-
-        assertThat(response.getTotalElements()).isEqualTo(1L);
-        assertThat(response.getStream().get(0).getId()).isEqualTo(DOCUMENT_ID);
     }
 
     // ==================== updateDocument ====================

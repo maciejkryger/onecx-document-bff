@@ -55,8 +55,8 @@ paths:
             - read
       tags:
         - DocumentController
-      description: Gets documents by criteria
-      operationId: getDocumentByCriteria
+      description: Search documents by criteria
+      operationId: searchDocumentByCriteria
       requestBody:
         content:
           application/json:
@@ -502,36 +502,6 @@ paths:
                   $ref: '#/components/schemas/StorageUploadAudit'
         '404':
           description: Not found
-  /document/search/show-all-documents:
-    post:
-      x-onecx:
-        permissions:
-          document:
-            - read
-      tags:
-        - DocumentController
-      description: Gets all documents by criteria
-      operationId: showAllDocumentsByCriteria
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DocumentSearchCriteria'
-      responses:
-        '200':
-          description: The corresponding documents resource
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/DocumentDetail'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetailResponse'
   /document/{id}:
     get:
       x-onecx:
@@ -963,12 +933,6 @@ components:
           items:
             type: string
         channelName:
-          type: string
-        startDate:
-          type: string
-        endDate:
-          type: string
-        createBy:
           type: string
         objectReferenceId:
           type: string
