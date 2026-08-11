@@ -21,17 +21,7 @@ import org.tkit.onecx.document.bff.AbstractTest;
 
 import gen.org.tkit.onecx.document.client.model.Attachment;
 import gen.org.tkit.onecx.document.client.model.DocumentDetail;
-import gen.org.tkit.onecx.document.rs.internal.model.AttachmentPresignedUrlResponseDTO;
-import gen.org.tkit.onecx.document.rs.internal.model.ChannelCreateUpdateDTO;
-import gen.org.tkit.onecx.document.rs.internal.model.ChannelDTO;
-import gen.org.tkit.onecx.document.rs.internal.model.DocumentCreateUpdateDTO;
-import gen.org.tkit.onecx.document.rs.internal.model.DocumentDetailDTO;
-import gen.org.tkit.onecx.document.rs.internal.model.DocumentPageResultDTO;
-import gen.org.tkit.onecx.document.rs.internal.model.DocumentSearchCriteriaDTO;
-import gen.org.tkit.onecx.document.rs.internal.model.StorageUploadAuditDTO;
-import gen.org.tkit.onecx.document.rs.internal.model.UpdateFileMetadataRequestDTO;
-import gen.org.tkit.onecx.document.rs.internal.model.UploadAttachmentPresignedUrlRequestDTO;
-import gen.org.tkit.onecx.document.rs.internal.model.UploadAttachmentPresignedUrlResponseDTO;
+import gen.org.tkit.onecx.document.rs.internal.model.*;
 import gen.org.tkit.onecx.filestorage.client.model.FileDeleteRequest;
 import gen.org.tkit.onecx.filestorage.client.model.FileMetadataResponse;
 import gen.org.tkit.onecx.filestorage.client.model.PresignedUrlResponse;
@@ -678,49 +668,11 @@ class DocumentControllerTest extends AbstractTest {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
-    // ==================== showAllDocumentsByCriteria ====================
-
-    @Test
-    @DisplayName("POST /search/show-all-documents - should return all matching documents")
-    void showAllDocumentsByCriteria_shouldReturnMatchingDocuments() {
-        var criteria = new DocumentSearchCriteriaDTO();
-        criteria.setName("Test Document");
-
-        var detail = new DocumentDetailDTO();
-        detail.setId(DOCUMENT_ID);
-        detail.setName("Test Document");
-
-        mockServerClient
-                .when(request()
-                        .withMethod("POST")
-                        .withPath("/internal/document/search/show-all-documents"))
-                .withId(SVC_MOCK_ID)
-                .respond(response()
-                        .withStatusCode(Response.Status.OK.getStatusCode())
-                        .withContentType(org.mockserver.model.MediaType.APPLICATION_JSON)
-                        .withBody(JsonBody.json(List.of(detail))));
-
-        var response = given()
-                .when()
-                .auth().oauth2(keycloakClient.getAccessToken(ADMIN))
-                .header(APM_HEADER_PARAM, ADMIN)
-                .contentType(APPLICATION_JSON)
-                .body(criteria)
-                .post("/search/show-all-documents")
-                .then()
-                .statusCode(Response.Status.OK.getStatusCode())
-                .extract()
-                .body()
-                .as(DocumentDetail[].class);
-
-        assertThat(response[0].getId()).isEqualTo(DOCUMENT_ID);
-    }
-
-    // ==================== getDocumentByCriteria ====================
+    // ==================== searchDocumentByCriteria ====================
 
     @Test
     @DisplayName("POST /search - should return paged documents by criteria")
-    void getDocumentByCriteria_shouldReturnDocumentPage_whenCriteriaMatches() {
+    void searchDocumentByCriteria_shouldReturnDocumentPage_whenCriteriaMatches() {
         var criteria = new DocumentSearchCriteriaDTO();
         criteria.setName("Test Document");
         criteria.setPageNumber(0);
@@ -1013,11 +965,11 @@ class DocumentControllerTest extends AbstractTest {
     // ==================== deleteBulkDocuments ====================
 
     @Test
-    @DisplayName("DELETE /delete-bulk-documents - should return 204 when bulk delete succeeds")
+    @DisplayName("POST /delete-bulk-documents - should return 204 when bulk delete succeeds")
     void deleteBulkDocuments_shouldReturnNoContent_whenServiceRespondsNoContent() {
         mockServerClient
                 .when(request()
-                        .withMethod("DELETE")
+                        .withMethod("POST")
                         .withPath("/internal/document/delete-bulk-documents"))
                 .withId(SEC_SVC_MOCK_ID)
                 .respond(response()
@@ -1029,7 +981,7 @@ class DocumentControllerTest extends AbstractTest {
                 .header(APM_HEADER_PARAM, ADMIN)
                 .contentType(APPLICATION_JSON)
                 .body(List.of(DOCUMENT_ID))
-                .delete("/delete-bulk-documents")
+                .post("/delete-bulk-documents")
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
     }

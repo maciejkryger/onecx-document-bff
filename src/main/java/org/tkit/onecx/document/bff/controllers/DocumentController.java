@@ -82,9 +82,9 @@ public class DocumentController implements DocumentControllerApiService {
     }
 
     @Override
-    public Response getDocumentByCriteria(DocumentSearchCriteriaDTO criteriaDTO) {
+    public Response searchDocumentByCriteria(DocumentSearchCriteriaDTO criteriaDTO) {
         var internalCriteria = mapper.mapToInternalCriteria(criteriaDTO);
-        try (Response response = documentControllerApi.getDocumentByCriteria(internalCriteria)) {
+        try (Response response = documentControllerApi.searchDocumentsByCriteria(internalCriteria)) {
             return Response.status(response.getStatus())
                     .entity(mapper.map(response.readEntity(DocumentPageResultDTO.class)))
                     .build();
@@ -118,17 +118,6 @@ public class DocumentController implements DocumentControllerApiService {
         return Response
                 .ok(mapper.mapPresignedUrl(presignedUrl))
                 .build();
-    }
-
-    @Override
-    public Response showAllDocumentsByCriteria(DocumentSearchCriteriaDTO criteriaDTO) {
-        var internalCriteria = mapper.mapToInternalCriteria(criteriaDTO);
-        try (Response response = documentControllerApi.showAllDocumentsByCriteria(internalCriteria)) {
-            return Response.status(response.getStatus())
-                    .entity(mapper.mapDetailList(response.readEntity(new GenericType<List<DocumentDetailDTO>>() {
-                    })))
-                    .build();
-        }
     }
 
     @Override
