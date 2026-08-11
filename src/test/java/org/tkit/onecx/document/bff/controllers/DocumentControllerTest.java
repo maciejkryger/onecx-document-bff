@@ -9,6 +9,7 @@ import static org.mockserver.model.HttpResponse.response;
 import java.time.OffsetDateTime;
 import java.util.List;
 
+import gen.org.tkit.onecx.document.rs.internal.model.*;
 import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -21,15 +22,6 @@ import org.tkit.onecx.document.bff.AbstractTest;
 
 import gen.org.tkit.onecx.document.client.model.Attachment;
 import gen.org.tkit.onecx.document.client.model.DocumentDetail;
-import gen.org.tkit.onecx.document.rs.internal.model.AttachmentPresignedUrlResponseDTO;
-import gen.org.tkit.onecx.document.rs.internal.model.ChannelCreateUpdateDTO;
-import gen.org.tkit.onecx.document.rs.internal.model.ChannelDTO;
-import gen.org.tkit.onecx.document.rs.internal.model.DocumentCreateUpdateDTO;
-import gen.org.tkit.onecx.document.rs.internal.model.DocumentDetailDTO;
-import gen.org.tkit.onecx.document.rs.internal.model.StorageUploadAuditDTO;
-import gen.org.tkit.onecx.document.rs.internal.model.UpdateFileMetadataRequestDTO;
-import gen.org.tkit.onecx.document.rs.internal.model.UploadAttachmentPresignedUrlRequestDTO;
-import gen.org.tkit.onecx.document.rs.internal.model.UploadAttachmentPresignedUrlResponseDTO;
 import gen.org.tkit.onecx.filestorage.client.model.FileDeleteRequest;
 import gen.org.tkit.onecx.filestorage.client.model.FileMetadataResponse;
 import gen.org.tkit.onecx.filestorage.client.model.PresignedUrlResponse;
@@ -674,6 +666,54 @@ class DocumentControllerTest extends AbstractTest {
                 .patch("/{documentId}/files/audit-log", DOCUMENT_ID)
                 .then()
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    // ==================== searchDocumentByCriteria ====================
+
+    @Test
+    @DisplayName("POST /search - should return paged documents by criteria")
+    void searchDocumentByCriteria_shouldReturnDocumentPage_whenCriteriaMatches() {
+        var criteria = new DocumentSearchCriteriaDTO();
+        criteria.setName("Test Document");
+        criteria.setPageNumber(0);
+        criteria.setPageSize(10);
+
+        var detail = new DocumentDetailDTO();
+        detail.setId(DOCUMENT_ID);
+        detail.setName("Test Document");
+
+        var pageResult = new DocumentPageResultDTO();
+        pageResult.setNumber(0);
+        pageResult.setSize(10);
+        pageResult.setTotalElements(1L);
+        pageResult.setTotalPages(1L);
+        pageResult.setStream(List.of(detail));
+
+        mockServerClient
+                .when(request()
+                        .withMethod("POST")
+                        .withPath("/internal/document/search"))
+                .withId(SVC_MOCK_ID)
+                .respond(response()
+                        .withStatusCode(Response.Status.OK.getStatusCode())
+                        .withContentType(org.mockserver.model.MediaType.APPLICATION_JSON)
+                        .withBody(JsonBody.json(pageResult)));
+
+        var response = given()
+                .when()
+                .auth().oauth2(keycloakClient.getAccessToken(ADMIN))
+                .header(APM_HEADER_PARAM, ADMIN)
+                .contentType(APPLICATION_JSON)
+                .body(criteria)
+                .post("/search")
+                .then()
+                .statusCode(Response.Status.OK.getStatusCode())
+                .extract()
+                .body()
+                .as(DocumentPageResultDTO.class);
+
+        assertThat(response.getTotalElements()).isEqualTo(1L);
+        assertThat(response.getStream().get(0).getId()).isEqualTo(DOCUMENT_ID);
     }
 
     // ==================== updateDocument ====================
