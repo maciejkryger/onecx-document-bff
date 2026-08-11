@@ -9,7 +9,6 @@ import static org.mockserver.model.HttpResponse.response;
 import java.time.OffsetDateTime;
 import java.util.List;
 
-import gen.org.tkit.onecx.document.rs.internal.model.*;
 import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +21,7 @@ import org.tkit.onecx.document.bff.AbstractTest;
 
 import gen.org.tkit.onecx.document.client.model.Attachment;
 import gen.org.tkit.onecx.document.client.model.DocumentDetail;
+import gen.org.tkit.onecx.document.rs.internal.model.*;
 import gen.org.tkit.onecx.filestorage.client.model.FileDeleteRequest;
 import gen.org.tkit.onecx.filestorage.client.model.FileMetadataResponse;
 import gen.org.tkit.onecx.filestorage.client.model.PresignedUrlResponse;
